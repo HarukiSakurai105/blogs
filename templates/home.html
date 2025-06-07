@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Family Blog{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h1 class="mb-4">Latest Posts</h1>
+        {% for post in posts.items %}
+            <article class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">
+                        <a href="{{ url_for('post', post_id=post.id) }}" class="text-decoration-none text-dark">
+                            {{ post.title }}
+                        </a>
+                    </h2>
+                    <p class="card-text text-muted">
+                        By {{ post.author.username }} on {{ post.date_posted.strftime('%Y-%m-%d') }}
+                    </p>
+                    <p class="card-text">{{ post.content[:200] }}...</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('post', post_id=post.id) }}" class="btn btn-primary">Read More</a>
+                        <div>
+                            <span class="text-muted me-3">
+                                <i class="fas fa-heart"></i> {{ post.likes|length }} likes
+                            </span>
+                            <span class="text-muted">
+                                <i class="fas fa-comments"></i> {{ post.comments|length }} comments
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        {% endfor %}
+
+        <!-- Pagination -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if posts.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('home', page=posts.prev_num) }}">Previous</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                {% endif %}
+
+                {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        {% if page_num == posts.page %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('home', page=page_num) }}">{{ page_num }}</a>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if posts.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('home', page=posts.next_num) }}">Next</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title">About This Blog</h3>
+                <p class="card-text">Welcome to our family blog! Here we share our daily adventures, parenting tips, and family moments.</p>
+                <a href="{{ url_for('about') }}" class="btn btn-outline-primary">Learn More</a>
+            </div>
+        </div>
+        {% if current_user.is_authenticated %}
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Quick Actions</h3>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('create') }}" class="btn btn-primary">Create New Post</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

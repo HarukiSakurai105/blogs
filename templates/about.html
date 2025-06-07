@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}About - Family Blog{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title mb-4">About Our Family Blog</h1>
+                <p class="lead">
+                    Welcome to our family blog, where we share our journey, experiences, and the joy of family life.
+                </p>
+                <p>
+                    This blog is a space where we document our family's adventures, share parenting tips, and connect with other families who are on similar journeys. We believe in creating meaningful memories and sharing them with our community.
+                </p>
+                <h2 class="mt-4">What You'll Find Here</h2>
+                <ul class="list-unstyled">
+                    <li class="mb-2">✨ Family adventures and travel stories</li>
+                    <li class="mb-2">👨‍👩‍👧‍👦 Parenting tips and experiences</li>
+                    <li class="mb-2">🎨 Creative activities for kids</li>
+                    <li class="mb-2">🍳 Family-friendly recipes</li>
+                    <li class="mb-2">📚 Book recommendations for the whole family</li>
+                </ul>
+                <h2 class="mt-4">Join Our Community</h2>
+                <p>
+                    We invite you to join our growing community of families. Share your stories, connect with other parents, and be part of our journey. Together, we can create a supportive space for families to learn, grow, and celebrate the beautiful moments of family life.
+                </p>
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary">Join Us</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

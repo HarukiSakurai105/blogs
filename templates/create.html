@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Create Post - Family Blog{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h1 class="mb-4">Create New Post</h1>
+        <form method="POST" action="{{ url_for('create') }}" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="title" class="form-label">Title</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="mb-3">
+                <label for="content" class="form-label">Content</label>
+                <textarea class="form-control" id="content" name="content" rows="10" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="image" class="form-label">Featured Image (optional)</label>
+                <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                <div class="form-text">Supported formats: PNG, JPG, JPEG, GIF. Max size: 16MB</div>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Post</button>
+            <a href="{{ url_for('home') }}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %} 

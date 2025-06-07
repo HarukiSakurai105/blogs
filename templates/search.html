@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results - Family Blog{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Search Results</h1>
+    
+    <!-- Search Form -->
+    <form class="mb-4" action="{{ url_for('search') }}" method="GET">
+        <div class="input-group">
+            <input type="text" class="form-control" name="query" value="{{ query }}" placeholder="Search posts...">
+            <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+    </form>
+
+    {% if query %}
+        {% if posts %}
+            <div class="row">
+                {% for post in posts %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            {% if post.image_path %}
+                                <img src="{{ url_for('static', filename=post.image_path) }}" class="card-img-top" alt="{{ post.title }}">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ post.title }}</h5>
+                                <p class="card-text text-muted">
+                                    By {{ post.author.username }} on {{ post.date_posted.strftime('%Y-%m-%d') }}
+                                </p>
+                                <p class="card-text">{{ post.content[:200] }}...</p>
+                                <a href="{{ url_for('post', post_id=post.id) }}" class="btn btn-primary">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No posts found matching "{{ query }}". Try different keywords.
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info">
+            Enter a search term to find posts.
+        </div>
+    {% endif %}
+
+    <!-- Search Tips -->
+    <div class="mt-4">
+        <h4>Search Tips:</h4>
+        <ul>
+            <li>Search by post title or content</li>
+            <li>Use specific keywords for better results</li>
+            <li>Try different variations of your search terms</li>
+        </ul>
+    </div>
+</div>
+{% endblock %} 
