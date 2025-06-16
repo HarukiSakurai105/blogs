@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, request, url_for, flash, redirect
 from flask_login import login_required, current_user
-from datetime import datetime
+from datetime import datetime, timedelta
 from models import Post, Notification, User
 from __init__ import db
+from sqlalchemy import or_
 
 main_bp = Blueprint('main', __name__)
 
@@ -38,11 +39,47 @@ def mark_notification_read(notification_id):
 def about():
     return render_template('about.html')
 
-@main_bp.route("/search")
+@main_bp.route('/search')
 def search():
-    query = request.args.get('q')
-    if query:
-        posts = Post.query.filter(Post.title.contains(query) | Post.content.contains(query)).order_by(Post.date_posted.desc()).all()
-    else:
-        posts = []
-    return render_template('search.html', posts=posts, query=query) 
+    query = request.args.get('q', '')
+    sort = request.args.get('sort', 'newest')
+    time_filter = request.args.get('time', 'all')
+    type_filter = request.args.get('type', 'all')
+    
+    if not query:
+        return redirect(url_for('main.home'))
+    
+    # Base query
+    posts_query = Post.query.filter(
+        or_(
+            Post.title.ilike(f'%{query}%'),
+            Post.content.ilike(f'%{query}%')
+        )
+    )
+    
+    # Apply time filter
+    if time_filter != 'all':
+        now = datetime.utcnow()
+        if time_filter == 'day':
+            posts_query = posts_query.filter(Post.date_posted >= now - timedelta(days=1))
+        elif time_filter == 'week':
+            posts_query = posts_query.filter(Post.date_posted >= now - timedelta(weeks=1))
+        elif time_filter == 'month':
+            posts_query = posts_query.filter(Post.date_posted >= now - timedelta(days=30))
+    
+    # Apply type filter
+    if type_filter == 'image':
+        posts_query = posts_query.filter(Post.image_path.isnot(None))
+    elif type_filter == 'text':
+        posts_query = posts_query.filter(Post.image_path.is_(None))
+    
+    # Apply sorting
+    if sort == 'oldest':
+        posts_query = posts_query.order_by(Post.date_posted.asc())
+    elif sort == 'popular':
+        posts_query = posts_query.order_by(Post.likes.desc())
+    else:  # newest
+        posts_query = posts_query.order_by(Post.date_posted.desc())
+    
+    posts = posts_query.all()
+    return render_template('search.html', posts=posts) 

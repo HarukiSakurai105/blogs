@@ -3,73 +3,222 @@
 {% block title %}Kết Quả Tìm Kiếm{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-4">
+    <!-- Search Bar Section -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form action="{{ url_for('main.search') }}" method="GET" class="search-form">
+                        <div class="input-group">
+                            <input type="text" name="q" class="form-control form-control-lg" placeholder="Tìm kiếm bài viết..." value="{{ request.args.get('q', '') }}" required>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-search"></i> Tìm kiếm
+                            </button>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <select name="sort" class="form-select">
+                                    <option value="newest" {% if request.args.get('sort') == 'newest' %}selected{% endif %}>Mới nhất</option>
+                                    <option value="oldest" {% if request.args.get('sort') == 'oldest' %}selected{% endif %}>Cũ nhất</option>
+                                    <option value="popular" {% if request.args.get('sort') == 'popular' %}selected{% endif %}>Phổ biến nhất</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <select name="time" class="form-select">
+                                    <option value="all" {% if request.args.get('time') == 'all' %}selected{% endif %}>Tất cả thời gian</option>
+                                    <option value="day" {% if request.args.get('time') == 'day' %}selected{% endif %}>Hôm nay</option>
+                                    <option value="week" {% if request.args.get('time') == 'week' %}selected{% endif %}>Tuần này</option>
+                                    <option value="month" {% if request.args.get('time') == 'month' %}selected{% endif %}>Tháng này</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <select name="type" class="form-select">
+                                    <option value="all" {% if request.args.get('type') == 'all' %}selected{% endif %}>Tất cả bài viết</option>
+                                    <option value="text" {% if request.args.get('type') == 'text' %}selected{% endif %}>Chỉ bài viết</option>
+                                    <option value="image" {% if request.args.get('type') == 'image' %}selected{% endif %}>Có hình ảnh</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <!-- Main Content Area -->
         <div class="col-lg-8">
-            <h2 class="mb-4">Kết Quả Tìm Kiếm</h2>
-
             {% if posts %}
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">Kết Quả Tìm Kiếm</h2>
+                    <span class="text-muted">{{ posts|length }} kết quả</span>
+                </div>
+
                 {% for post in posts %}
-                <div class="card mb-4 shadow-sm post-card">
+                <div class="card mb-4 shadow-sm post-card hover-shadow">
                     <div class="row g-0">
                         {% if post.image_path %}
                         <div class="col-md-4">
-                            <img src="{{ url_for('static', filename='uploads/' + post.image_path) }}" class="img-fluid rounded-start post-thumbnail" alt="{{ post.title }}">
+                            <img src="{{ url_for('static', filename='uploads/' + post.image_path) }}" 
+                                 class="img-fluid rounded-start post-thumbnail h-100" 
+                                 style="object-fit: cover;"
+                                 alt="{{ post.title }}">
                         </div>
                         {% endif %}
                         <div class="{% if post.image_path %}col-md-8{% else %}col-12{% endif %}">
                             <div class="card-body">
-                                <h5 class="card-title"><a href="{{ url_for('posts.post', post_id=post.id) }}" class="text-dark text-decoration-none">{{ post.title }}</a></h5>
-                                <p class="card-text text-muted small mb-2">
-                                    <div class="author-info d-inline-flex align-items-center me-3">
-                                        <img src="{{ url_for('static', filename='uploads/' + post.author.profile_image) }}" alt="{{ post.author.username }}" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
-                                        <span class="author-name">{{ post.author.username }}</span>
+                                <h5 class="card-title">
+                                    <a href="{{ url_for('posts.post', post_id=post.id) }}" class="text-dark text-decoration-none hover-primary">
+                                        {{ post.title }}
+                                    </a>
+                                </h5>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="author-info d-flex align-items-center me-3">
+                                        <img src="{{ url_for('static', filename='uploads/' + post.author.profile_image) }}" 
+                                             alt="{{ post.author.username }}" 
+                                             class="rounded-circle me-2" 
+                                             style="width: 32px; height: 32px; object-fit: cover;">
+                                        <span class="author-name fw-medium">{{ post.author.username }}</span>
                                     </div>
-                                    <span class="post-date"><i class="bi bi-calendar me-1"></i>{{ post.date_posted.strftime('%d-%m-%Y') }}</span>
-                                </p>
-                                <p class="card-text">{{ post.content | truncate(150) }}</p>
-                                <p class="card-text d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">
-                                        <i class="bi bi-heart-fill me-1 text-danger"></i>{{ post.likes|length }} Thích
-                                        <i class="bi bi-chat-dots-fill ms-3 me-1 text-primary"></i>{{ post.post_comments|length }} Bình luận
-                                    </small>
-                                    <a href="{{ url_for('posts.post', post_id=post.id) }}" class="btn btn-sm btn-outline-primary">Đọc thêm</a>
-                                </p>
+                                    <span class="text-muted">
+                                        <i class="bi bi-calendar me-1"></i>{{ post.date_posted.strftime('%d-%m-%Y') }}
+                                    </span>
+                                </div>
+                                <p class="card-text text-muted">{{ post.content | truncate(150) }}</p>
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <div class="d-flex gap-3">
+                                        <span class="text-danger">
+                                            <i class="bi bi-heart-fill me-1"></i>{{ post.likes|length }}
+                                        </span>
+                                        <span class="text-primary">
+                                            <i class="bi bi-chat-dots-fill me-1"></i>{{ post.post_comments|length }}
+                                        </span>
+                                    </div>
+                                    <a href="{{ url_for('posts.post', post_id=post.id) }}" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        Đọc thêm <i class="bi bi-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 {% endfor %}
             {% else %}
-                <div class="alert alert-info text-center" role="alert">
-                    <i class="bi bi-info-circle-fill me-2"></i>Không tìm thấy bài viết nào phù hợp với tìm kiếm của bạn.
+                <div class="card shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-search display-1 text-muted mb-3"></i>
+                        <h3 class="mb-3">Không tìm thấy kết quả</h3>
+                        <p class="text-muted mb-4">Không có bài viết nào phù hợp với tìm kiếm của bạn.</p>
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="{{ url_for('main.home') }}" class="btn btn-primary">
+                                <i class="bi bi-house-door me-2"></i>Về trang chủ
+                            </a>
+                            <button onclick="document.querySelector('.search-form input').focus()" class="btn btn-outline-primary">
+                                <i class="bi bi-search me-2"></i>Thử tìm kiếm khác
+                            </button>
+                        </div>
+                    </div>
                 </div>
             {% endif %}
         </div>
 
         <!-- Sidebar -->
         <div class="col-lg-4">
-            <div class="sidebar-widget mb-4">
-                <h4 class="mb-3">Mẹo tìm kiếm</h4>
-                <ul class="list-unstyled text-muted">
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Sử dụng các từ khóa cụ thể.</li>
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Kiểm tra lỗi chính tả.</li>
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Thử các từ đồng nghĩa hoặc các cụm từ liên quan.</li>
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Sử dụng bộ lọc nếu có.</li>
-                </ul>
+            <!-- Search Tips -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">
+                        <i class="bi bi-lightbulb text-warning me-2"></i>
+                        Mẹo tìm kiếm
+                    </h4>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-3 d-flex align-items-start">
+                            <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                            <span>Sử dụng các từ khóa cụ thể và ngắn gọn để có kết quả chính xác hơn.</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-start">
+                            <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                            <span>Kiểm tra lỗi chính tả và thử các cách viết khác nhau của từ khóa.</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-start">
+                            <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                            <span>Sử dụng bộ lọc để thu hẹp kết quả tìm kiếm theo thời gian hoặc loại bài viết.</span>
+                        </li>
+                        <li class="d-flex align-items-start">
+                            <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                            <span>Thử các từ đồng nghĩa hoặc các cụm từ liên quan nếu không tìm thấy kết quả.</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
 
-            <!-- Example: Popular Posts Widget -->
-            <div class="sidebar-widget">
-                <h4 class="mb-3">Bài viết phổ biến</h4>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><a href="#" class="text-decoration-none">10 Mẫu Đồng Hồ Lặn Tốt Nhất Năm 2024</a></li>
-                    <li class="mb-2"><a href="#" class="text-decoration-none">Hướng Dẫn Chế Tạo Đồng Hồ Cơ Bản</a></li>
-                    <li class="mb-2"><a href="#" class="text-decoration-none">Lịch Sử Phát Triển Của Đồng Hồ Rolex</a></li>
-                </ul>
+            <!-- Popular Posts -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">
+                        <i class="bi bi-fire text-danger me-2"></i>
+                        Bài viết phổ biến
+                    </h4>
+                    <div class="list-group list-group-flush">
+                        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
+                            <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" 
+                                 class="rounded" 
+                                 style="width: 64px; height: 64px; object-fit: cover;"
+                                 alt="Post thumbnail">
+                            <div>
+                                <h6 class="mb-1">10 Mẫu Đồng Hồ Lặn Tốt Nhất Năm 2024</h6>
+                                <small class="text-muted">
+                                    <i class="bi bi-eye me-1"></i>1.2k lượt xem
+                                </small>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
+                            <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" 
+                                 class="rounded" 
+                                 style="width: 64px; height: 64px; object-fit: cover;"
+                                 alt="Post thumbnail">
+                            <div>
+                                <h6 class="mb-1">Hướng Dẫn Chế Tạo Đồng Hồ Cơ Bản</h6>
+                                <small class="text-muted">
+                                    <i class="bi bi-eye me-1"></i>856 lượt xem
+                                </small>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3">
+                            <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" 
+                                 class="rounded" 
+                                 style="width: 64px; height: 64px; object-fit: cover;"
+                                 alt="Post thumbnail">
+                            <div>
+                                <h6 class="mb-1">Lịch Sử Phát Triển Của Đồng Hồ Rolex</h6>
+                                <small class="text-muted">
+                                    <i class="bi bi-eye me-1"></i>723 lượt xem
+                                </small>
+                            </div>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.hover-shadow {
+    transition: all 0.3s ease;
+}
+.hover-shadow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+}
+.hover-primary:hover {
+    color: var(--bs-primary) !important;
+}
+.post-thumbnail {
+    height: 100%;
+    object-fit: cover;
+}
+</style>
 {% endblock %} 
