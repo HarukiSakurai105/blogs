@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Chỉnh Sửa Bài Viết{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h3 class="mb-0"><i class="bi bi-pencil-square me-2 text-primary"></i>Chỉnh Sửa Bài Viết</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('posts.edit_post', post_id=post.id) }}" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Tiêu đề</label>
+                            <input type="text" class="form-control" id="title" name="title" value="{{ post.title }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Nội dung</label>
+                            <textarea class="form-control" id="content" name="content" rows="10" required>{{ post.content }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Hình ảnh (tùy chọn)</label>
+                            {% if post.image_path %}
+                                <img src="{{ url_for('static', filename='uploads/' + post.image_path) }}" alt="Ảnh hiện tại" class="img-fluid mb-2" style="max-height: 200px;">
+                                <p class="form-text text-muted">Ảnh hiện tại. Chọn ảnh mới để thay đổi.</p>
+                            {% endif %}
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                            <small class="form-text text-muted">Chỉ chấp nhận các định dạng JPG, PNG, GIF. Kích thước tối đa 16MB.</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary me-2">Cập nhật bài viết</button>
+                        <a href="{{ url_for('posts.post', post_id=post.id) }}" class="btn btn-outline-secondary">Hủy</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

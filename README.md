@@ -2,6 +2,8 @@
 11. Install the required packages:
 ```bash
 pip install -r requirements.txt
+pip install Flask-Migrate
+pip install flask-socketio
 ```
 2. Run the application:
 ```bash
@@ -9,7 +11,7 @@ python app.py
 ```
 
 3. Open your web browser and navigate to:
-```
+````
 http://localhost:5000
 ```
 

@@ -1,59 +1,75 @@
 {% extends "base.html" %}
 
-{% block title %}Search Results - Family Blog{% endblock %}
+{% block title %}Kết Quả Tìm Kiếm{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="mb-4">Search Results</h1>
-    
-    <!-- Search Form -->
-    <form class="mb-4" action="{{ url_for('search') }}" method="GET">
-        <div class="input-group">
-            <input type="text" class="form-control" name="query" value="{{ query }}" placeholder="Search posts...">
-            <button class="btn btn-primary" type="submit">Search</button>
-        </div>
-    </form>
+<div class="container mt-5">
+    <div class="row">
+        <!-- Main Content Area -->
+        <div class="col-lg-8">
+            <h2 class="mb-4">Kết Quả Tìm Kiếm</h2>
 
-    {% if query %}
-        {% if posts %}
-            <div class="row">
+            {% if posts %}
                 {% for post in posts %}
-                    <div class="col-md-6 mb-4">
-                        <div class="card h-100">
-                            {% if post.image_path %}
-                                <img src="{{ url_for('static', filename=post.image_path) }}" class="card-img-top" alt="{{ post.title }}">
-                            {% endif %}
+                <div class="card mb-4 shadow-sm post-card">
+                    <div class="row g-0">
+                        {% if post.image_path %}
+                        <div class="col-md-4">
+                            <img src="{{ url_for('static', filename='uploads/' + post.image_path) }}" class="img-fluid rounded-start post-thumbnail" alt="{{ post.title }}">
+                        </div>
+                        {% endif %}
+                        <div class="{% if post.image_path %}col-md-8{% else %}col-12{% endif %}">
                             <div class="card-body">
-                                <h5 class="card-title">{{ post.title }}</h5>
-                                <p class="card-text text-muted">
-                                    By {{ post.author.username }} on {{ post.date_posted.strftime('%Y-%m-%d') }}
+                                <h5 class="card-title"><a href="{{ url_for('posts.post', post_id=post.id) }}" class="text-dark text-decoration-none">{{ post.title }}</a></h5>
+                                <p class="card-text text-muted small mb-2">
+                                    <div class="author-info d-inline-flex align-items-center me-3">
+                                        <img src="{{ url_for('static', filename='uploads/' + post.author.profile_image) }}" alt="{{ post.author.username }}" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
+                                        <span class="author-name">{{ post.author.username }}</span>
+                                    </div>
+                                    <span class="post-date"><i class="bi bi-calendar me-1"></i>{{ post.date_posted.strftime('%d-%m-%Y') }}</span>
                                 </p>
-                                <p class="card-text">{{ post.content[:200] }}...</p>
-                                <a href="{{ url_for('post', post_id=post.id) }}" class="btn btn-primary">Read More</a>
+                                <p class="card-text">{{ post.content | truncate(150) }}</p>
+                                <p class="card-text d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="bi bi-heart-fill me-1 text-danger"></i>{{ post.likes|length }} Thích
+                                        <i class="bi bi-chat-dots-fill ms-3 me-1 text-primary"></i>{{ post.comments|length }} Bình luận
+                                    </small>
+                                    <a href="{{ url_for('posts.post', post_id=post.id) }}" class="btn btn-sm btn-outline-primary">Đọc thêm</a>
+                                </p>
                             </div>
                         </div>
                     </div>
+                </div>
                 {% endfor %}
-            </div>
-        {% else %}
-            <div class="alert alert-info">
-                No posts found matching "{{ query }}". Try different keywords.
-            </div>
-        {% endif %}
-    {% else %}
-        <div class="alert alert-info">
-            Enter a search term to find posts.
+            {% else %}
+                <div class="alert alert-info text-center" role="alert">
+                    <i class="bi bi-info-circle-fill me-2"></i>Không tìm thấy bài viết nào phù hợp với tìm kiếm của bạn.
+                </div>
+            {% endif %}
         </div>
-    {% endif %}
 
-    <!-- Search Tips -->
-    <div class="mt-4">
-        <h4>Search Tips:</h4>
-        <ul>
-            <li>Search by post title or content</li>
-            <li>Use specific keywords for better results</li>
-            <li>Try different variations of your search terms</li>
-        </ul>
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="sidebar-widget mb-4">
+                <h4 class="mb-3">Mẹo tìm kiếm</h4>
+                <ul class="list-unstyled text-muted">
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Sử dụng các từ khóa cụ thể.</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Kiểm tra lỗi chính tả.</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Thử các từ đồng nghĩa hoặc các cụm từ liên quan.</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Sử dụng bộ lọc nếu có.</li>
+                </ul>
+            </div>
+
+            <!-- Example: Popular Posts Widget -->
+            <div class="sidebar-widget">
+                <h4 class="mb-3">Bài viết phổ biến</h4>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="#" class="text-decoration-none">10 Mẫu Đồng Hồ Lặn Tốt Nhất Năm 2024</a></li>
+                    <li class="mb-2"><a href="#" class="text-decoration-none">Hướng Dẫn Chế Tạo Đồng Hồ Cơ Bản</a></li>
+                    <li class="mb-2"><a href="#" class="text-decoration-none">Lịch Sử Phát Triển Của Đồng Hồ Rolex</a></li>
+                </ul>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %} 

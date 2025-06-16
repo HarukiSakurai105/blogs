@@ -1,0 +1,213 @@
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
+from flask_login import login_required, current_user
+from werkzeug.utils import secure_filename
+from datetime import datetime
+import os
+from models import Post, Comment, Like, Notification, User
+from __init__ import db, socketio
+from routes.main import create_notification
+from forms import CommentForm
+
+posts_bp = Blueprint('posts', __name__)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@posts_bp.route('/post/<int:post_id>', methods=['GET', 'POST'])
+def post(post_id):
+    post = Post.query.get_or_404(post_id)
+    form = CommentForm()
+    if form.validate_on_submit():
+        if current_user.is_authenticated:
+            comment = Comment(content=form.content.data, author=current_user, post=post)
+            db.session.add(comment)
+            db.session.commit()
+            # Create notification for post author
+            if post.author.id != current_user.id:
+                create_notification(
+                    post.author.id,
+                    f"{current_user.username} đã bình luận về bài viết của bạn: {post.title}",
+                    url_for('posts.post', post_id=post.id)
+                )
+            flash('Bình luận của bạn đã được thêm!', 'success')
+            return redirect(url_for('posts.post', post_id=post.id))
+        else:
+            flash('Bạn cần đăng nhập để bình luận.', 'warning')
+    return render_template('post.html', post=post, comment_form=form)
+
+@posts_bp.route('/post/<int:post_id>/like', methods=['POST'])
+@login_required
+def like_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    like = Like.query.filter_by(user_id=current_user.id, post_id=post.id).first()
+    if like:
+        db.session.delete(like)
+        db.session.commit()
+        flash('Bạn đã bỏ thích bài viết này!', 'info')
+    else:
+        like = Like(user_id=current_user.id, post_id=post.id)
+        db.session.add(like)
+        db.session.commit()
+        # Create notification for post author
+        if post.author.id != current_user.id:
+            create_notification(
+                post.author.id,
+                f"{current_user.username} đã thích bài viết của bạn: {post.title}",
+                url_for('posts.post', post_id=post.id)
+            )
+        flash('Bạn đã thích bài viết này!', 'success')
+    return redirect(url_for('posts.post', post_id=post.id))
+
+@posts_bp.route('/post/<int:post_id>/comment/<int:comment_id>/delete', methods=['POST'])
+@login_required
+def delete_comment(post_id, comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    if comment.author != current_user:
+        flash('Bạn không có quyền xóa bình luận này!', 'danger')
+        return redirect(url_for('posts.post', post_id=post_id))
+    
+    db.session.delete(comment)
+    db.session.commit()
+    flash('Bình luận đã được xóa!', 'success')
+    return redirect(url_for('posts.post', post_id=post_id))
+
+@posts_bp.route('/create', methods=['GET', 'POST'])
+@login_required
+def create():
+    if request.method == 'POST':
+        title = request.form.get('title')
+        content = request.form.get('content')
+        image = request.files.get('image')
+        
+        if not title or not content:
+            flash('Tiêu đề và nội dung không được để trống!', 'danger')
+            return redirect(url_for('posts.create'))
+        
+        post = Post(title=title, content=content, author=current_user)
+        
+        if image and image.filename != '':
+            if not allowed_file(image.filename):
+                flash('Chỉ cho phép các tệp hình ảnh!', 'danger')
+                return redirect(url_for('posts.create'))
+            
+            filename = secure_filename(image.filename)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
+            filename = timestamp + filename
+            image.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
+            post.image_path = filename
+        
+        db.session.add(post)
+        db.session.commit()
+        flash('Bài viết đã được tạo thành công!', 'success')
+        return redirect(url_for('main.home'))
+    
+    return render_template('create.html')
+
+@posts_bp.route('/post/<int:post_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        flash('Bạn không thể chỉnh sửa bài viết này!', 'danger')
+        return redirect(url_for('posts.post', post_id=post.id))
+    
+    if request.method == 'POST':
+        post.title = request.form['title']
+        post.content = request.form['content']
+        image = request.files.get('image')
+
+        if image and image.filename != '':
+            if not allowed_file(image.filename):
+                flash('Chỉ cho phép các tệp hình ảnh cho ảnh bài viết!', 'danger')
+                return redirect(url_for('posts.edit_post', post_id=post.id))
+
+            if len(image.read()) > current_app.config['MAX_CONTENT_LENGTH']:
+                flash('Kích thước ảnh bài viết vượt quá giới hạn 16MB!', 'danger')
+                return redirect(url_for('posts.edit_post', post_id=post.id))
+            image.seek(0) # Reset stream position after reading size
+
+            filename = secure_filename(image.filename)
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
+            filename = timestamp + filename
+            image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            
+            print(f"DEBUG: Saving image to: {image_path}")
+            image.save(image_path)
+            print(f"DEBUG: Image saved. Old post.image_path: {post.image_path}")
+            post.image_path = filename
+            print(f"DEBUG: New post.image_path: {post.image_path}")
+
+        db.session.commit()
+        flash('Bài viết của bạn đã được cập nhật!', 'success')
+        return redirect(url_for('posts.post', post_id=post.id))
+    
+    return render_template('edit.html', post=post)
+
+@posts_bp.route('/post/<int:post_id>/delete', methods=['POST'])
+@login_required
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        flash('Bạn không thể xóa bài viết này!', 'danger')
+        return redirect(url_for('posts.post', post_id=post.id))
+    
+    db.session.delete(post)
+    db.session.commit()
+    flash('Bài viết của bạn đã được xóa!', 'success')
+    return redirect(url_for('main.home'))
+
+@posts_bp.route('/post/<int:post_id>/comment', methods=['POST'])
+@login_required
+def add_comment(post_id):
+    post = Post.query.get_or_404(post_id)
+    content = request.form.get('content')
+    
+    if not content:
+        flash('Nội dung bình luận không được để trống!', 'danger')
+        return redirect(url_for('posts.post', post_id=post.id))
+    
+    comment = Comment(content=content, author=current_user, post=post)
+    db.session.add(comment)
+    
+    # Tạo thông báo cho chủ bài viết
+    if post.author != current_user:
+        notification = Notification(
+            user=post.author,
+            content=f'{current_user.username} đã bình luận bài viết của bạn: {content[:50]}...',
+            link=url_for('posts.post', post_id=post.id)
+        )
+        db.session.add(notification)
+        # Gửi thông báo realtime
+        socketio.emit('new_notification', {
+            'user_id': post.author.id,
+            'content': notification.content,
+            'link': notification.link,
+            'profile_image': current_user.profile_image,
+            'username': current_user.username
+        })
+    
+    db.session.commit()
+    flash('Bình luận đã được thêm!', 'success')
+    return redirect(url_for('posts.post', post_id=post.id))
+
+@posts_bp.route('/comment/<int:comment_id>/edit', methods=['POST'])
+@login_required
+def edit_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    if comment.author != current_user:
+        flash('Bạn không có quyền chỉnh sửa bình luận này!', 'danger')
+        return redirect(url_for('posts.post', post_id=comment.post.id))
+    
+    content = request.form.get('content')
+    if not content:
+        flash('Nội dung bình luận không được để trống!', 'danger')
+        return redirect(url_for('posts.post', post_id=comment.post.id))
+    
+    comment.content = content
+    comment.is_edited = True
+    db.session.commit()
+    
+    flash('Bình luận đã được cập nhật!', 'success')
+    return redirect(url_for('posts.post', post_id=comment.post.id)) 

@@ -1,33 +1,61 @@
 {% extends "base.html" %}
 
-{% block title %}About - Family Blog{% endblock %}
+{% block title %}Về Chúng Tôi{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-8 offset-md-2">
-        <div class="card">
-            <div class="card-body">
-                <h1 class="card-title mb-4">About Our Family Blog</h1>
-                <p class="lead">
-                    Welcome to our family blog, where we share our journey, experiences, and the joy of family life.
-                </p>
-                <p>
-                    This blog is a space where we document our family's adventures, share parenting tips, and connect with other families who are on similar journeys. We believe in creating meaningful memories and sharing them with our community.
-                </p>
-                <h2 class="mt-4">What You'll Find Here</h2>
-                <ul class="list-unstyled">
-                    <li class="mb-2">✨ Family adventures and travel stories</li>
-                    <li class="mb-2">👨‍👩‍👧‍👦 Parenting tips and experiences</li>
-                    <li class="mb-2">🎨 Creative activities for kids</li>
-                    <li class="mb-2">🍳 Family-friendly recipes</li>
-                    <li class="mb-2">📚 Book recommendations for the whole family</li>
-                </ul>
-                <h2 class="mt-4">Join Our Community</h2>
-                <p>
-                    We invite you to join our growing community of families. Share your stories, connect with other parents, and be part of our journey. Together, we can create a supportive space for families to learn, grow, and celebrate the beautiful moments of family life.
-                </p>
-                <div class="text-center mt-4">
-                    <a href="{{ url_for('register') }}" class="btn btn-primary">Join Us</a>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm p-4">
+                <div class="card-body text-center">
+                    <h2 class="card-title mb-4">Chào mừng đến với Blog Công Nghệ!</h2>
+                    <p class="lead mb-4">Tại Blog Công Nghệ, chúng tôi đam mê mọi thứ liên quan đến thời gian và đồng hồ. Sứ mệnh của chúng tôi là tạo ra một cộng đồng sống động, nơi những người yêu đồng hồ có thể kết nối, chia sẻ và khám phá thế giới phức tạp của nghệ thuật chế tác đồng hồ.</p>
+
+                    <div class="row text-start mb-5">
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-pencil-square fs-3 me-3 text-primary"></i>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">Tạo bài viết của bạn</h6>
+                                    <small class="text-muted">Chia sẻ đánh giá, tin tức hoặc câu chuyện về đồng hồ yêu thích của bạn.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-people-fill fs-3 me-3 text-success"></i>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">Kết nối với những người viết khác</h6>
+                                    <small class="text-muted">Tham gia vào các cuộc thảo luận, học hỏi và phát triển cùng nhau.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-chat-dots-fill fs-3 me-3 text-info"></i>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">Tương tác với nội dung</h6>
+                                    <small class="text-muted">Bình luận, thích và chia sẻ những bài viết yêu thích của bạn.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="mb-4">Tính năng chính</h3>
+                    <ul class="list-unstyled text-start feature-list mx-auto" style="max-width: 500px;">
+                        <li class="mb-2 d-flex align-items-center"><i class="bi bi-check-circle-fill text-primary me-2"></i>Thiết kế hiện đại và đẹp mắt</li>
+                        <li class="mb-2 d-flex align-items-center"><i class="bi bi-check-circle-fill text-primary me-2"></i>Tùy chỉnh hồ sơ với hình ảnh và tiểu sử</li>
+                        <li class="mb-2 d-flex align-items-center"><i class="bi bi-check-circle-fill text-primary me-2"></i>Hỗ trợ tải lên hình ảnh cho bài viết</li>
+                        <li class="mb-2 d-flex align-items-center"><i class="bi bi-check-circle-fill text-primary me-2"></i>Thông báo thời gian thực</li>
+                        <li class="mb-2 d-flex align-items-center"><i class="bi bi-check-circle-fill text-primary me-2"></i>Chức năng tìm kiếm nâng cao</li>
+                    </ul>
+
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('posts.create') }}" class="btn btn-primary btn-lg mt-4"><i class="bi bi-feather me-2"></i>Bắt đầu viết bài</a>
+                    {% else %}
+                        <p class="mt-4">Sẵn sàng tham gia cộng đồng của chúng tôi? <a href="{{ url_for('register') }}">Đăng ký ngay</a></p>
+                        <a href="{{ url_for('register') }}" class="btn btn-dark btn-lg"><i class="bi bi-person-plus me-2"></i>Tham gia ngay</a>
+                    {% endif %}
                 </div>
             </div>
         </div>

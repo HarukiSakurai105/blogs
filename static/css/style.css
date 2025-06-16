@@ -1,0 +1,379 @@
+/* General Styles */
+body {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    padding-top: 0;
+}
+
+main {
+    flex: 1;
+}
+
+/* Top Bar Styles */
+.top-bar {
+    background: #222;
+    color: #fff;
+    min-height: 40px;
+    padding: 6px 0;
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.top-bar a {
+    text-decoration: none;
+    transition: opacity 0.2s;
+    color: #fff;
+}
+
+.top-bar a:hover {
+    opacity: 0.8;
+}
+
+/* Navbar Styles */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-top: 0;
+    z-index: 10;
+}
+
+@media (min-width: 992px) {
+    .navbar {
+        margin-top: 0;
+    }
+}
+
+/* Navbar brand */
+.navbar-brand {
+    color: #fff;
+    font-weight: 700;
+}
+
+.navbar-nav .nav-link {
+    color: #fff !important;
+}
+
+.nav-link {
+    font-weight: 500;
+    color: #fff;
+    padding: 1rem 1.2rem;
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    color: #007bff !important;
+}
+
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.dropdown-item {
+    padding: 0.7rem 1.5rem;
+    font-weight: 500;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: #007bff;
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+    margin-bottom: 2rem;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.card-title {
+    font-weight: 700;
+    color: #333;
+}
+
+/* Post Styles */
+.post-image {
+    max-height: 400px;
+    object-fit: cover;
+    width: 100%;
+    border-radius: 4px;
+}
+
+.post-content {
+    white-space: pre-wrap;
+    line-height: 1.8;
+    color: #444;
+}
+
+/* Category Badge */
+.category-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    background-color: #f8f9fa;
+    color: #666;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+/* Author Info */
+.author-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.author-info img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 1rem;
+}
+
+.author-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.2rem;
+}
+
+.post-date {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Comment Styles */
+.comment {
+    border-left: 3px solid #007bff;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0 4px 4px 0;
+}
+
+/* Button Styles */
+.btn {
+    border-radius: 4px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-outline-primary {
+    color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-outline-primary:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Form Styles */
+.form-control {
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    padding: 0.75rem 1rem;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.15);
+    border-color: #80bdff;
+}
+
+/* Alert Styles */
+.alert {
+    border-radius: 4px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Footer Styles */
+footer {
+    background-color: #333;
+    color: #fff;
+    padding: 4rem 0 2rem;
+}
+
+footer h5 {
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #fff;
+}
+
+footer a {
+    color: #fff;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+footer a:hover {
+    opacity: 0.8;
+    color: #fff;
+}
+
+footer hr {
+    border-color: rgba(255,255,255,0.1);
+}
+
+footer p {
+    color: #fff !important;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .navbar-brand h1 {
+        font-size: 1.5rem;
+    }
+    
+    .nav-link {
+        padding: 0.8rem 1rem !important;
+    }
+    
+    .card-title {
+        font-size: 1.2rem;
+    }
+    
+    .post-image {
+        max-height: 300px;
+    }
+}
+
+/* Featured Post */
+.featured-post {
+    position: relative;
+    margin-bottom: 3rem;
+}
+
+.featured-post img {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.featured-post .overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    color: white;
+    border-radius: 0 0 8px 8px;
+}
+
+.featured-post .category-badge {
+    background-color: rgba(255,255,255,0.2);
+    color: white;
+}
+
+/* Post Grid */
+.post-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.post-grid .card {
+    margin-bottom: 0;
+}
+
+.post-grid .card-img-top {
+    height: 180px;
+    object-fit: cover;
+    width: 100%;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    background-color: #f0f0f0;
+}
+
+/* Sidebar */
+.sidebar-widget {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+}
+
+.sidebar-widget h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+/* Newsletter Form */
+.newsletter-form {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.newsletter-form h4 {
+    margin-bottom: 1rem;
+}
+
+.newsletter-form .form-control {
+    margin-bottom: 1rem;
+}
+
+/* Social Share */
+.social-share {
+    display: flex;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.social-share a {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 50%;
+    color: #333;
+    transition: all 0.2s;
+}
+
+.social-share a:hover {
+    background: #007bff;
+    color: white;
+}
+
+.card-img-left {
+    width: 160px;
+    height: 140px;
+    object-fit: cover;
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+}
+
+@media (max-width: 576px) {
+    .card-img-left {
+        width: 100px;
+        height: 80px;
+    }
+} 
