@@ -61,7 +61,7 @@
                                         <span class="text-muted small">{{ post.date_posted.strftime('%d-%m-%Y') }}</span>
                                         <span>
                                             <span class="text-danger me-3"><i class="bi bi-heart-fill me-1"></i>{{ post.likes|length }}</span>
-                                            <span class="text-primary"><i class="bi bi-chat-dots-fill me-1"></i>{{ post.comments|length }}</span>
+                                            <span class="text-primary"><i class="bi bi-chat-dots-fill me-1"></i>{{ post.post_comments|length }}</span>
                                         </span>
                                     </div>
                                 </div>
