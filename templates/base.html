@@ -21,6 +21,20 @@
         <!-- Toasts will be appended here by JavaScript -->
     </div>
 
+    <!-- JSON data for flashed messages -->
+    <script id="flashed-messages-data" type="application/json">
+        [
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                {
+                    "category": "{{ category }}",
+                    "message": {{ message | tojson }}
+                }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        {% endwith %}
+        ]
+    </script>
+
     <!-- Top Bar -->
     <!-- <div class="top-bar bg-dark text-white py-2">
         <div class="container">
@@ -74,13 +88,17 @@
                             {% endif %}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notificationDropdown" style="min-width: 320px; max-width: 400px; max-height: 400px; overflow-y: auto;">
-                            {% if current_user.notifications %}
+                            {% if current_user.notifications|sort(attribute='id', reverse=True)|batch(10)|first %}
                                 {% for n in current_user.notifications|sort(attribute='id', reverse=True)|batch(10)|first %}
                                     <li class="mb-1 {% if not n.is_read %}bg-light{% endif %}">
-                                        <a href="{{ n.link or '#' }}" class="dropdown-item small">
-                                            {{ n.content }}<br>
-                                            <span class="text-muted small">{{ n.date_created.strftime('%H:%M %d-%m-%Y') }}</span>
-                                        </a>
+                                        <div class="d-flex align-items-center p-2">
+                                            <img src="/static/uploads/{{ n.user.profile_image }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;" alt="Profile">
+                                            <div>
+                                                <strong>{{ n.user.username }}</strong><br>
+                                                {{ n.content | truncate(50) }}<br>
+                                                <span class="text-muted small">{{ n.date_created.strftime('%H:%M %d-%m-%Y') }}</span>
+                                            </div>
+                                        </div>
                                     </li>
                                 {% endfor %}
                             {% else %}
@@ -179,16 +197,14 @@
                     var newNotification = document.createElement('li');
                     newNotification.className = 'mb-1 bg-light';
                     newNotification.innerHTML = `
-                        <a href="${data.link}" class="dropdown-item small">
-                            <div class="d-flex align-items-center">
-                                <img src="/static/uploads/${data.profile_image}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;" alt="Profile">
-                                <div>
-                                    <strong>${data.username}</strong><br>
-                                    ${data.content}<br>
-                                    <span class="text-muted small">Vừa xong</span>
-                                </div>
+                        <div class="d-flex align-items-center p-2">
+                            <img src="/static/uploads/${data.profile_image}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;" alt="Profile">
+                            <div>
+                                <strong>${data.username}</strong><br>
+                                ${data.content}<br>
+                                <span class="text-muted small">Vừa xong</span>
                             </div>
-                        </a>
+                        </div>
                     `;
                     dropdown.insertBefore(newNotification, dropdown.firstChild);
 
@@ -205,7 +221,6 @@
                 }
 
                 const toastElement = document.createElement('div');
-                // Simplified className for debugging
                 toastElement.className = `toast align-items-center text-white bg-${category} border-0`;
                 toastElement.setAttribute('role', 'alert');
                 toastElement.setAttribute('aria-live', 'assertive');
@@ -227,14 +242,18 @@
             }
 
             // Display flashed messages as toasts on page load
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        showToast('Thông báo', {{ message | tojson }}, '{{ category }}');
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-        }); // End DOMContentLoaded
+            const flashedMessagesData = document.getElementById('flashed-messages-data');
+            if (flashedMessagesData) {
+                try {
+                    const flashedMessages = JSON.parse(flashedMessagesData.textContent);
+                    flashedMessages.forEach(function(msg) {
+                        showToast('Thông báo', String(msg.message), String(msg.category));
+                    });
+                } catch (e) {
+                    console.error("Failed to parse flashed messages:", e);
+                }
+            }
+        });
     </script>
 </body>
 </html> 

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, url_for, flash, redirect
+from flask import Blueprint, render_template, request, url_for, flash, redirect, jsonify
 from flask_login import login_required, current_user
 from datetime import datetime, timedelta
 from models import Post, Notification, User
@@ -29,11 +29,20 @@ def notifications():
 def mark_notification_read(notification_id):
     notification = Notification.query.get_or_404(notification_id)
     if notification.user_id != current_user.id:
-        flash('Bạn không thể đánh dấu thông báo này là đã đọc!', 'danger')
-        return redirect(url_for('main.notifications'))
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'message': 'Bạn không thể đánh dấu thông báo này là đã đọc!'}), 403
+        else:
+            flash('Bạn không thể đánh dấu thông báo này là đã đọc!', 'danger')
+            return redirect(url_for('main.notifications'))
+    
     notification.is_read = True
     db.session.commit()
-    return redirect(url_for('main.notifications'))
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({'success': True, 'notification_id': notification_id})
+    else:
+        flash('Thông báo đã được đánh dấu là đã đọc!', 'success')
+        return redirect(url_for('main.notifications'))
 
 @main_bp.route('/about')
 def about():
@@ -58,7 +67,8 @@ def search():
     if time_filter != 'all':
         now = datetime.utcnow()
         if time_filter == 'day':
-            posts_query = posts_query.filter(Post.date_posted >= now - timedelta(days=1))
+            start_of_day = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+            posts_query = posts_query.filter(Post.date_posted >= start_of_day)
         elif time_filter == 'week':
             posts_query = posts_query.filter(Post.date_posted >= now - timedelta(weeks=1))
         elif time_filter == 'month':

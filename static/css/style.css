@@ -77,7 +77,7 @@ main {
 }
 
 .dropdown-item:hover {
-    background-color: #f8f9fa;
+    background-color: rgb(255, 196, 196);
     color: #007bff;
 }
 
@@ -376,4 +376,155 @@ footer p {
         width: 100px;
         height: 80px;
     }
-} 
+}
+
+.navbar-nav .dropdown-toggle.nav-link {
+    transition: background-color 0.3s ease, border-radius 0.3s ease;
+    padding: 8px 12px;
+}
+
+.navbar-nav .dropdown-toggle.nav-link:hover {
+    background-color: #ffd8ea;
+    border-radius: 20px;
+    transform: none;
+}
+
+/* Featured Post Styling */
+#featuredPostCard {
+    border: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: linear-gradient(to right, #ffffff, #f8f9fa);
+}
+
+#featuredPostCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+
+.featured-image-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px 0 0 8px;
+}
+
+.featured-image {
+    transition: transform 0.5s ease;
+    height: 100%;
+    object-fit: cover;
+}
+
+#featuredPostCard:hover .featured-image {
+    transform: scale(1.05);
+}
+
+#featuredPostCard .text-primary {
+    color: #007bff !important;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+#featuredPostCard h3 {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #2c3e50;
+    transition: color 0.3s ease;
+}
+
+#featuredPostCard:hover h3 {
+    color: #e83e8c;
+}
+
+#featuredPostCard .text-danger {
+    color: #dc3545 !important;
+}
+
+/* Recent Posts Styling */
+.post-grid .card {
+    border: none;
+    transition: all 0.3s ease;
+    background: linear-gradient(to right, #ffffff, #f8f9fa);
+    overflow: hidden;
+}
+
+.post-grid .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+
+.post-grid .card-img-left {
+    width: 200px;
+    object-fit: cover;
+    border-radius: 8px 0 0 8px;
+    transition: transform 0.5s ease;
+    height: 100%;
+}
+
+.post-grid .card:hover .card-img-left {
+    transform: scale(1.05);
+}
+
+.post-grid .card-title {
+    transition: color 0.3s ease;
+    font-weight: 700;
+    font-size: 1.4em;
+    color: #2c3e50;
+}
+
+.post-grid .card:hover .card-title {
+    color: #e83e8c;
+}
+
+.post-grid .card-text {
+    color: #6c757d;
+    transition: color 0.3s ease;
+}
+
+.post-grid .card:hover .card-text {
+    color: #495057;
+}
+
+.post-grid .rounded-circle {
+    transition: transform 0.3s ease;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.post-grid .card:hover .rounded-circle {
+    transform: scale(1.1);
+}
+
+.post-grid .text-danger {
+    color: #dc3545 !important;
+}
+
+.post-grid .text-primary {
+    color: #007bff !important;
+}
+
+.post-grid .text-muted.small {
+    transition: color 0.3s ease;
+}
+
+.post-grid .card:hover .text-muted.small {
+    color: #e83e8c;
+}
+
+.post-grid .fw-bold {
+    color: #2c3e50;
+    transition: color 0.3s ease;
+}
+
+.post-grid .card:hover .fw-bold {
+    color: #e83e8c;
+}
+
+/* Arrow Icon Styling */
+.card .position-absolute .bi {
+    color: #007bff; /* Initial color for the arrow */
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.card:hover .position-absolute .bi {
+    color: #e83e8c; /* Pink color on hover */
+    transform: translateX(5px); /* Move slightly to the right on hover */
+}

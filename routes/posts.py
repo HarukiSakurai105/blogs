@@ -207,7 +207,7 @@ def edit_comment(comment_id):
     db.session.commit()
     
     flash('Bình luận đã được cập nhật!', 'success')
-    return redirect(url_for('posts.post', post_id=comment.post.id))
+    return redirect(url_for('posts.post', post_id=comment.post.id)) 
 
 @posts_bp.route('/post/<int:post_id>/remove_image', methods=['POST'])
 @login_required
