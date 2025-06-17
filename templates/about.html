@@ -53,7 +53,6 @@
                     {% if current_user.is_authenticated %}
                         <a href="{{ url_for('posts.create') }}" class="btn btn-primary btn-lg mt-4"><i class="bi bi-feather me-2"></i>Bắt đầu viết bài</a>
                     {% else %}
-                        <p class="mt-4">Sẵn sàng tham gia cộng đồng của chúng tôi? <a href="{{ url_for('auth.register') }}">Đăng ký ngay</a></p>
                         <a href="{{ url_for('auth.register') }}" class="btn btn-dark btn-lg"><i class="bi bi-person-plus me-2"></i>Tham gia ngay</a>
                     {% endif %}
                 </div>

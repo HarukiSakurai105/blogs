@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from datetime import datetime, timedelta
 from models import Post, Notification, User
 from __init__ import db
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 
 main_bp = Blueprint('main', __name__)
 
@@ -51,10 +51,7 @@ def search():
     
     # Base query
     posts_query = Post.query.filter(
-        or_(
-            Post.title.ilike(f'%{query}%'),
-            Post.content.ilike(f'%{query}%')
-        )
+        Post.title.ilike(f'%{query}%')
     )
     
     # Apply time filter
@@ -77,7 +74,8 @@ def search():
     if sort == 'oldest':
         posts_query = posts_query.order_by(Post.date_posted.asc())
     elif sort == 'popular':
-        posts_query = posts_query.order_by(Post.likes.desc())
+        # Order by the number of likes
+        posts_query = posts_query.outerjoin(Post.likes).group_by(Post.id).order_by(func.count(Post.likes).desc())
     else:  # newest
         posts_query = posts_query.order_by(Post.date_posted.desc())
     

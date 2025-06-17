@@ -22,11 +22,34 @@
                         </div>
                         <div class="mb-3">
                             <label for="image" class="form-label">Hình ảnh (tùy chọn)</label>
+                            
                             {% if post.image_path %}
-                                <img src="{{ url_for('static', filename='uploads/' + post.image_path) }}" alt="Ảnh hiện tại" class="img-fluid mb-2" style="max-height: 200px;">
-                                <p class="form-text text-muted">Ảnh hiện tại. Chọn ảnh mới để thay đổi.</p>
+                            <div id="image-display-area" style="display: block;">
+                                <img id="current-image-preview" src="{{ url_for('static', filename='uploads/' + post.image_path) }}" alt="Ảnh hiện tại" class="img-fluid mb-2 rounded" style="max-height: 200px; object-fit: cover;">
+                                <button type="button" class="btn btn-sm btn-danger mt-2" onclick="removeExistingImage('{{ post.id }}')"><i class="bi bi-x-circle me-1"></i>Xóa ảnh hiện tại</button>
+                            </div>
+                            <div id="upload-area" class="image-upload-area mb-3" onclick="document.getElementById('image').click()" style="display: none;">
+                                <div class="image-icon-wrapper">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                                <p class="mb-0">Thêm ảnh vào bài viết của bạn</p>
+                            </div>
+                            {% else %}
+                            <div id="image-display-area" style="display: none;"></div>
+                            <div id="upload-area" class="image-upload-area mb-3" onclick="document.getElementById('image').click()" style="display: flex;">
+                                <div class="image-icon-wrapper">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                                <p class="mb-0">Thêm ảnh vào bài viết của bạn</p>
+                            </div>
                             {% endif %}
-                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+
+                            <input type="file" class="form-control d-none" id="image" name="image" accept="image/*" onchange="previewNewImage(event)">
+
+                            <div class="mt-3" id="image-preview-container" style="display: none;">
+                                <img id="new-image-preview" src="#" alt="Image Preview" class="img-fluid rounded" style="max-height: 200px; object-fit: cover;">
+                                <button type="button" class="btn btn-sm btn-danger mt-2" onclick="removeNewImage()"><i class="bi bi-x-circle me-1"></i>Xóa ảnh mới</button>
+                            </div>
                             <small class="form-text text-muted">Chỉ chấp nhận các định dạng JPG, PNG, GIF. Kích thước tối đa 16MB.</small>
                         </div>
                         <button type="submit" class="btn btn-primary me-2">Cập nhật bài viết</button>
@@ -37,4 +60,102 @@
         </div>
     </div>
 </div>
+
+<script>
+function previewNewImage(event) {
+    const reader = new FileReader();
+    reader.onload = function() {
+        const output = document.getElementById('new-image-preview');
+        const container = document.getElementById('image-preview-container');
+        const uploadArea = document.getElementById('upload-area');
+        const currentImageDisplay = document.getElementById('image-display-area');
+
+        if (currentImageDisplay) {
+            currentImageDisplay.style.display = 'none';
+        }
+
+        output.src = reader.result;
+        container.style.display = 'block';
+        uploadArea.style.display = 'none';
+    };
+    reader.readAsDataURL(event.target.files[0]);
+}
+
+function removeNewImage() {
+    const output = document.getElementById('new-image-preview');
+    const container = document.getElementById('image-preview-container');
+    const imageInput = document.getElementById('image');
+    const uploadArea = document.getElementById('upload-area');
+    const currentImageDisplay = document.getElementById('image-display-area');
+    
+    output.src = "#";
+    container.style.display = 'none';
+    imageInput.value = ''; 
+    
+    if (currentImageDisplay && currentImageDisplay.querySelector('img')) {
+        currentImageDisplay.style.display = 'block';
+        uploadArea.style.display = 'none'; // Keep upload area hidden if there's an existing image
+    } else {
+        uploadArea.style.display = 'flex'; // Show upload area if no existing image
+    }
+}
+
+function removeExistingImage(postId) {
+    console.log(`DEBUG: removeExistingImage called for post ID: ${postId}`);
+    const currentImageContainer = document.getElementById('image-display-area');
+    const imageInput = document.getElementById('image');
+    const uploadArea = document.getElementById('upload-area');
+
+    // For now, just hide it and clear the input locally
+    if (currentImageContainer) {
+        currentImageContainer.innerHTML = ''; // Clear content
+        currentImageContainer.style.display = 'none';
+        console.log('DEBUG: currentImageContainer hidden.');
+    }
+    imageInput.value = ''; // Clear the file input
+    
+    console.log(`DEBUG: Before change - uploadArea.style.display: ${uploadArea.style.display}`);
+    uploadArea.style.display = 'flex';
+    console.log(`DEBUG: After change - uploadArea.style.display: ${uploadArea.style.display}`);
+    console.log('DEBUG: uploadArea should now be visible.');
+}
+</script>
+
+<style>
+.image-upload-area {
+    border: 1px solid #000000;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+}
+.image-upload-area:hover {
+    background-color: #3d444a;
+    border-color: #525b62;
+}
+.image-upload-area p {
+    color: #000000;
+}
+.image-upload-area .image-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid #007bff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+.image-upload-area .image-icon-wrapper i {
+    color: #28a745;
+    font-size: 2.5rem;
+}
+</style>
 {% endblock %} 

@@ -16,6 +16,11 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container">
+        <!-- Toasts will be appended here by JavaScript -->
+    </div>
+
     <!-- Top Bar -->
     <!-- <div class="top-bar bg-dark text-white py-2">
         <div class="container">
@@ -110,18 +115,6 @@
         </div>
     </nav>
 
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
     <!-- Main Content -->
     <main class="container mt-4">
         {% block content %}{% endblock %}
@@ -160,66 +153,88 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script>
-        var socket = io();
-        var unreadCount = 0;
-        var currentUserId = "{{ current_user.id if current_user.is_authenticated else 'null' }}";
+        document.addEventListener('DOMContentLoaded', function() {
+            var socket = io();
+            var unreadCount = 0;
+            var currentUserId = "{{ current_user.id if current_user.is_authenticated else 'null' }}";
 
-        socket.on('new_notification', function(data) {
-            if (data.user_id == currentUserId) {
-                // Cập nhật số lượng thông báo chưa đọc
-                unreadCount++;
-                var badge = document.querySelector('#notificationDropdown .badge');
-                if (badge) {
-                    badge.textContent = unreadCount;
-                } else {
-                    var newBadge = document.createElement('span');
-                    newBadge.className = 'badge bg-danger position-absolute top-0 start-100 translate-middle';
-                    newBadge.textContent = unreadCount;
-                    document.querySelector('#notificationDropdown').appendChild(newBadge);
+            socket.on('new_notification', function(data) {
+                if (data.user_id == currentUserId) {
+                    // Cập nhật số lượng thông báo chưa đọc
+                    unreadCount++;
+                    var badge = document.querySelector('#notificationDropdown .badge');
+                    if (badge) {
+                        badge.textContent = unreadCount;
+                    } else {
+                        var newBadge = document.createElement('span');
+                        newBadge.className = 'badge bg-danger position-absolute top-0 start-100 translate-middle';
+                        newBadge.textContent = unreadCount;
+                        document.querySelector('#notificationDropdown').appendChild(newBadge);
+                    }
+
+                    // Thêm thông báo mới vào dropdown
+                    var dropdown = document.querySelector('#notificationDropdown + .dropdown-menu');
+                    var newNotification = document.createElement('li');
+                    newNotification.className = 'mb-1 bg-light';
+                    newNotification.innerHTML = `
+                        <a href="${data.link}" class="dropdown-item small">
+                            <div class="d-flex align-items-center">
+                                <img src="/static/uploads/${data.profile_image}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;" alt="Profile">
+                                <div>
+                                    <strong>${data.username}</strong><br>
+                                    ${data.content}<br>
+                                    <span class="text-muted small">Vừa xong</span>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                    dropdown.insertBefore(newNotification, dropdown.firstChild);
+
+                    // Display as a toast notification as well
+                    showToast('Thông báo mới', `${data.username}: ${data.content}`, 'info');
+                }
+            });
+
+            function showToast(title, message, category) {
+                const toastContainer = document.getElementById('toast-container');
+                if (!toastContainer) {
+                    console.error('Toast container not found on DOMContentLoaded!');
+                    return;
                 }
 
-                // Thêm thông báo mới vào dropdown
-                var dropdown = document.querySelector('#notificationDropdown + .dropdown-menu');
-                var newNotification = document.createElement('li');
-                newNotification.className = 'mb-1 bg-light';
-                newNotification.innerHTML = `
-                    <a href="${data.link}" class="dropdown-item small">
-                        <div class="d-flex align-items-center">
-                            <img src="/static/uploads/${data.profile_image}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;" alt="Profile">
-                            <div>
-                                <strong>${data.username}</strong><br>
-                                ${data.content}<br>
-                                <span class="text-muted small">Vừa xong</span>
-                            </div>
-                        </div>
-                    </a>
-                `;
-                dropdown.insertBefore(newNotification, dropdown.firstChild);
+                const toastElement = document.createElement('div');
+                // Simplified className for debugging
+                toastElement.className = `toast align-items-center text-white bg-${category} border-0`;
+                toastElement.setAttribute('role', 'alert');
+                toastElement.setAttribute('aria-live', 'assertive');
+                toastElement.setAttribute('aria-atomic', 'true');
+                toastElement.setAttribute('data-bs-delay', '5000'); // 5 seconds
 
-                // Hiển thị thông báo toast
-                var toast = document.createElement('div');
-                toast.className = 'toast position-fixed bottom-0 end-0 m-3';
-                toast.setAttribute('role', 'alert');
-                toast.setAttribute('aria-live', 'assertive');
-                toast.setAttribute('aria-atomic', 'true');
-                toast.innerHTML = `
-                    <div class="toast-header">
-                        <img src="/static/uploads/${data.profile_image}" class="rounded-circle me-2" style="width: 20px; height: 20px; object-fit: cover;" alt="Profile">
-                        <strong class="me-auto">${data.username}</strong>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body">
-                        ${data.content}
+                toastElement.innerHTML = `
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <strong>${title}</strong><br>${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
                 `;
-                document.body.appendChild(toast);
-                var bsToast = new bootstrap.Toast(toast);
-                bsToast.show();
+
+                toastContainer.appendChild(toastElement);
+                const toast = new bootstrap.Toast(toastElement);
+                toast.show();
             }
-        });
+
+            // Display flashed messages as toasts on page load
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        showToast('Thông báo', {{ message | tojson }}, '{{ category }}');
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        }); // End DOMContentLoaded
     </script>
 </body>
 </html> 

@@ -21,8 +21,18 @@
                             <textarea class="form-control" id="content" name="content" rows="8" required></textarea>
                         </div>
                         <div class="mb-3">
-                            <label for="image" class="form-label">Tải ảnh lên</label>
-                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                            <label for="image" class="form-label">Hình ảnh (tùy chọn)</label>
+                            <div class="image-upload-area mb-3" onclick="document.getElementById('image').click()">
+                                <div class="image-icon-wrapper">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                                <p class="mb-0">Thêm ảnh vào bài viết của bạn</p>
+                            </div>
+                            <input type="file" class="form-control d-none" id="image" name="image" accept="image/*" onchange="previewImage(event)">
+                            <div class="mt-3" id="image-preview-container" style="display: none;">
+                                <img id="image-preview" src="#" alt="Image Preview" class="img-fluid rounded" style="max-height: 200px; object-fit: cover;">
+                                <button type="button" class="btn btn-sm btn-danger mt-2" onclick="removeImage()"><i class="bi bi-x-circle me-1"></i>Xóa ảnh</button>
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-primary">Tạo bài viết</button>
                     </form>
@@ -31,4 +41,67 @@
         </div>
     </div>
 </div>
+
+<script>
+function previewImage(event) {
+    const reader = new FileReader();
+    reader.onload = function() {
+        const output = document.getElementById('image-preview');
+        const container = document.getElementById('image-preview-container');
+        output.src = reader.result;
+        container.style.display = 'block';
+        document.querySelector('.image-upload-area').style.display = 'none'; // Hide upload area after selection
+    };
+    reader.readAsDataURL(event.target.files[0]);
+}
+
+function removeImage() {
+    const output = document.getElementById('image-preview');
+    const container = document.getElementById('image-preview-container');
+    const imageInput = document.getElementById('image');
+    
+    output.src = "#";
+    container.style.display = 'none';
+    imageInput.value = ''; // Clear the selected file
+    document.querySelector('.image-upload-area').style.display = 'flex'; // Show upload area
+}
+</script>
+
+<style>
+.image-upload-area {
+    border: 1px solid #000000;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+}
+.image-upload-area:hover {
+    background-color: #3d444a;
+    border-color: #525b62;
+}
+.image-upload-area p {
+    color: #000000;
+}
+.image-upload-area .image-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid #007bff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+.image-upload-area .image-icon-wrapper i {
+    color: #28a745;
+    font-size: 2.5rem;
+}
+</style>
 {% endblock %} 

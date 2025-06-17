@@ -9,11 +9,25 @@
             <div class="card shadow-sm mb-4">
                 <div class="card-body text-center">
                     <h2 class="card-title mb-4">Hồ Sơ Của Bạn</h2>
-                    <img src="{{ url_for('static', filename='uploads/' + current_user.profile_image) }}" 
-                         alt="Hình đại diện"
-                         class="profile-image rounded-circle mb-3"
-                         style="width: 150px; height: 150px; object-fit: cover;">
                     
+                    <div class="dropdown profile-image-dropdown mb-3">
+                        <div class="profile-image-container dropdown-toggle" id="mainProfileImageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="{{ url_for('static', filename='uploads/' + current_user.profile_image) }}" 
+                                 alt="Hình đại diện"
+                                 id="main-profile-image"
+                                 class="profile-image rounded-circle"
+                                 style="width: 150px; height: 150px; object-fit: cover;">
+                            <div class="overlay-icon">
+                                <i class="bi bi-camera-fill"></i>
+                            </div>
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="mainProfileImageDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('static', filename='uploads/' + current_user.profile_image) }}" target="_blank"><i class="bi bi-eye me-2"></i>Xem ảnh đại diện</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="document.getElementById('profile_image_input').click(); $('#editProfileModal').modal('show'); return false;"><i class="bi bi-image me-2"></i>Chọn ảnh đại diện</a></li>
+                        </ul>
+                    </div>
+
                     <h3 class="mb-1">{{ current_user.username }}</h3>
                     <p class="text-muted">
                         <i class="bi bi-envelope me-2"></i>{{ current_user.email }}<br>
@@ -81,15 +95,27 @@
                 <h5 class="modal-title" id="editProfileModalLabel">Chỉnh Sửa Hồ Sơ</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
             </div>
-            <form method="POST" action="{{ url_for('profile.update_profile') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ url_for('profile.update_profile') }}" enctype="multipart/form-data" id="editProfileForm">
                 <div class="modal-body">
                     <div class="mb-3 text-center">
-                        <img src="{{ url_for('static', filename='uploads/' + current_user.profile_image) }}"
-                             alt="Hình đại diện"
-                             class="profile-image-preview rounded-circle mb-3"
-                             style="width: 100px; height: 100px; object-fit: cover;">
-                        <label for="profile_image" class="form-label d-block">Thay đổi hình đại diện</label>
-                        <input type="file" class="form-control" id="profile_image" name="profile_image" accept="image/*">
+                        <div class="dropdown profile-image-dropdown">
+                            <div class="profile-image-container dropdown-toggle" id="profileImageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="{{ url_for('static', filename='uploads/' + current_user.profile_image) }}"
+                                     alt="Hình đại diện"
+                                     id="profile-image-preview"
+                                     class="profile-image-preview rounded-circle mb-2"
+                                     style="width: 150px; height: 150px; object-fit: cover;">
+                                <div class="overlay-icon">
+                                    <i class="bi bi-camera-fill"></i>
+                                </div>
+                            </div>
+                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="profileImageDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('static', filename='uploads/' + current_user.profile_image) }}" target="_blank"><i class="bi bi-eye me-2"></i>Xem ảnh đại diện</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="document.getElementById('profile_image_input').click(); return false;"><i class="bi bi-image me-2"></i>Chọn ảnh đại diện</a></li>
+                            </ul>
+                        </div>
+                        <input type="file" class="form-control d-none" id="profile_image_input" name="profile_image" accept="image/*" onchange="previewProfileImage(event)">
                         <small class="form-text text-muted">Kích thước tối đa 16MB. Các định dạng được hỗ trợ: JPG, PNG, GIF.</small>
                     </div>
                     <div class="mb-3">
@@ -113,4 +139,152 @@
         </div>
     </div>
 </div>
+
+<!-- Confirm Profile Image Modal -->
+<div class="modal fade" id="confirmProfileImageModal" tabindex="-1" aria-labelledby="confirmProfileImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="confirmProfileImageModalLabel">Xác nhận ảnh đại diện</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="image-preview-to-confirm" src="" alt="Image Preview" class="img-fluid rounded-circle mb-3" style="max-width: 200px; max-height: 200px; object-fit: cover;">
+                <p>Bạn có muốn thay ảnh này không?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="confirmProfileImageButton">Lưu ảnh</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedProfileFile = null;
+
+function previewProfileImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    selectedProfileFile = file;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('image-preview-to-confirm').src = e.target.result;
+
+        // Hide the edit profile modal if it's open, before showing the confirmation modal
+        const editModalElement = document.getElementById('editProfileModal');
+        const editModal = bootstrap.Modal.getInstance(editModalElement);
+        if (editModal) {
+            editModal.hide();
+        }
+
+        const confirmModal = new bootstrap.Modal(document.getElementById('confirmProfileImageModal'));
+        confirmModal.show();
+    };
+    reader.readAsDataURL(file);
+}
+
+document.getElementById('confirmProfileImageButton').addEventListener('click', function() {
+    if (selectedProfileFile) {
+        // Create a DataTransfer object and add the selected file to it
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(selectedProfileFile);
+
+        // Set the files property of the hidden input
+        document.getElementById('profile_image_input').files = dataTransfer.files;
+
+        // Submit the form in the edit profile modal
+        document.getElementById('editProfileForm').submit();
+
+        // Close the confirmation modal
+        const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmProfileImageModal'));
+        if (confirmModal) {
+            confirmModal.hide();
+        }
+    }
+});
+
+// Clear the file input if the confirmation modal is dismissed without saving
+document.getElementById('confirmProfileImageModal').addEventListener('hidden.bs.modal', function () {
+    document.getElementById('profile_image_input').value = ''; 
+});
+
+// Give the form an ID for programmatic submission
+document.getElementById('editProfileForm').addEventListener('submit', function() {
+    // Re-enable the submit button if it was disabled
+    const submitButton = document.querySelector('#editProfileForm button[type="submit"]');
+    if (submitButton) {
+        submitButton.disabled = false;
+    }
+});
+</script>
+
+<style>
+.profile-image-dropdown {
+    display: inline-block;
+    margin-bottom: 15px; /* Adjust as needed */
+}
+
+.profile-image-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto;
+    cursor: pointer;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid transparent;
+    transition: border-color 0.3s ease;
+}
+.profile-image-container:hover {
+    border-color: #007bff; /* Highlight on hover */
+}
+.profile-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.profile-image-container .overlay-icon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 50%;
+}
+.profile-image-container:hover .overlay-icon {
+    opacity: 1;
+}
+.profile-image-container .overlay-icon i {
+    font-size: 2.5rem;
+}
+
+/* Custom style for dark dropdown menu */
+.dropdown-menu-dark {
+    background-color: #343a40; /* Dark background */
+    border: 1px solid rgba(0, 0, 0, 0.15);
+}
+.dropdown-menu-dark .dropdown-item {
+    color: #e2e6ea; /* Light text */
+}
+.dropdown-menu-dark .dropdown-item:hover,
+.dropdown-menu-dark .dropdown-item:focus {
+    background-color: #495057; /* Slightly lighter on hover/focus */
+}
+.dropdown-menu-dark .dropdown-divider {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+</style>
 {% endblock %} 

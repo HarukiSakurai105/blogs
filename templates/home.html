@@ -108,13 +108,20 @@
                 <h4 class="mb-3">Đăng ký nhận bản tin</h4>
                 <p class="text-muted">Nhận những bài viết và tin tức đồng hồ mới nhất ngay vào hộp thư đến của bạn.</p>
                 <form class="newsletter-form">
-                    <div class="input-group mb-3">
-                        <input type="email" class="form-control" placeholder="Nhập email của bạn" aria-label="Nhập email của bạn">
-                        <button class="btn btn-primary" type="submit">Đăng ký</button>
+                    <div class="input-group mb-3 newsletter-input-group">
+                        <input type="email" class="form-control h-100" placeholder="Nhập email của bạn" aria-label="Nhập email của bạn">
+                        <button class="btn btn-primary h-100" type="submit">Đăng ký</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.newsletter-input-group .form-control {
+    flex: 1;
+    min-width: 0;
+}
+</style>
 {% endblock %} 

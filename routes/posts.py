@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, jsonify
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -133,11 +133,8 @@ def edit_post(post_id):
             filename = timestamp + filename
             image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
             
-            print(f"DEBUG: Saving image to: {image_path}")
             image.save(image_path)
-            print(f"DEBUG: Image saved. Old post.image_path: {post.image_path}")
             post.image_path = filename
-            print(f"DEBUG: New post.image_path: {post.image_path}")
 
         db.session.commit()
         flash('Bài viết của bạn đã được cập nhật!', 'success')
@@ -210,4 +207,24 @@ def edit_comment(comment_id):
     db.session.commit()
     
     flash('Bình luận đã được cập nhật!', 'success')
-    return redirect(url_for('posts.post', post_id=comment.post.id)) 
+    return redirect(url_for('posts.post', post_id=comment.post.id))
+
+@posts_bp.route('/post/<int:post_id>/remove_image', methods=['POST'])
+@login_required
+def remove_post_image(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        return jsonify({'success': False, 'message': 'Bạn không có quyền xóa ảnh bài viết này!'}), 403
+
+    if post.image_path:
+        try:
+            file_path = os.path.join(current_app.root_path, 'static', 'uploads', post.image_path)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            post.image_path = None
+            db.session.commit()
+            return jsonify({'success': True, 'message': 'Ảnh đã được xóa thành công!'})
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'success': False, 'message': f'Lỗi khi xóa ảnh: {str(e)}'}), 500
+    return jsonify({'success': False, 'message': 'Bài viết không có ảnh để xóa!'}), 404 
