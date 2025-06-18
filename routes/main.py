@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, url_for, flash, redirect, jsonify
 from flask_login import login_required, current_user
 from datetime import datetime, timedelta
-from models import Post, Notification, User
+from models import Post, Notification, User, Category
 from __init__ import db
 from sqlalchemy import or_, func
 
@@ -16,7 +16,10 @@ def create_notification(user_id, content, link=None):
 def home():
     page = request.args.get('page', 1, type=int)
     posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
-    return render_template('home.html', posts=posts)
+    categories = Category.query.order_by(Category.name).all()
+    total_posts = Post.query.count()
+    total_users = User.query.count()
+    return render_template('home.html', posts=posts, categories=categories, total_posts=total_posts, total_users=total_users)
 
 @main_bp.route('/notifications')
 @login_required
@@ -54,14 +57,17 @@ def search():
     sort = request.args.get('sort', 'newest')
     time_filter = request.args.get('time', 'all')
     type_filter = request.args.get('type', 'all')
+    category_filter = request.args.get('category', 'all')
     
     if not query:
         return redirect(url_for('main.home'))
     
-    # Base query
     posts_query = Post.query.filter(
         Post.title.ilike(f'%{query}%')
     )
+    
+    if category_filter != 'all':
+        posts_query = posts_query.filter(Post.category_id == int(category_filter))
     
     # Apply time filter
     if time_filter != 'all':
@@ -90,4 +96,5 @@ def search():
         posts_query = posts_query.order_by(Post.date_posted.desc())
     
     posts = posts_query.all()
-    return render_template('search.html', posts=posts) 
+    categories = Category.query.order_by(Category.name).all()
+    return render_template('search.html', posts=posts, categories=categories) 

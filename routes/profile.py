@@ -27,6 +27,13 @@ def user_profile(username):
 @login_required
 def update_profile():
     if request.method == 'POST':
+        new_username = request.form.get('username')
+        if new_username and new_username != current_user.username:
+            # Check if username is taken
+            if User.query.filter_by(username=new_username).first():
+                flash('Tên người dùng đã tồn tại. Vui lòng chọn tên khác!', 'danger')
+                return redirect(url_for('profile.profile'))
+            current_user.username = new_username
         current_user.bio = request.form.get('bio')
         current_user.gender = request.form.get('gender')
         

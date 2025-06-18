@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }} - Chủ đề{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <h2 class="section-title mb-4">
+                <i class="bi bi-tag text-success me-2"></i>{{ category.name|e|title }}
+            </h2>
+            {% if posts.items %}
+                {% for post in posts.items %}
+                <div class="post-item mb-4" data-post-url="{{ url_for('posts.post', post_id=post.id) }}">
+                    <div class="row g-0">
+                        <div class="col-md-4">
+                            {% if post.image_path %}
+                                <img src="{{ url_for('static', filename='uploads/' + post.image_path) }}" alt="{{ post.title }}" class="img-fluid rounded-start h-100" style="object-fit: cover;">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='uploads/default_post_image.jpg') }}" alt="Default Post Image" class="img-fluid rounded-start h-100" style="object-fit: cover;">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body h-100 d-flex flex-column">
+                                <div class="mb-2">
+                                    <span class="badge bg-secondary me-2">{{ post.category.name }}</span>
+                                    <span class="text-muted small">
+                                        <i class="bi bi-clock me-1"></i>{{ (post.content|length / 200)|round|int }} phút đọc
+                                    </span>
+                                </div>
+                                <h5 class="card-title mb-2">{{ post.title }}</h5>
+                                <p class="card-text text-muted mb-3">{{ post.content | truncate(120) }}</p>
+                                <div class="mt-auto">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ url_for('static', filename='uploads/' + post.author.profile_image) }}" alt="{{ post.author.username }}" class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
+                                            <span class="fw-bold small">{{ post.author.username }}</span>
+                                        </div>
+                                        <div class="d-flex gap-3">
+                                            <span class="text-danger small">
+                                                <i class="bi bi-heart-fill me-1"></i>{{ post.likes|length }}
+                                            </span>
+                                            <span class="text-primary small">
+                                                <i class="bi bi-chat-dots-fill me-1"></i>{{ post.post_comments|length }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                <!-- Pagination -->
+                {% if posts.pages > 1 %}
+                <nav aria-label="Page navigation" class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        {% if posts.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('posts.category', category_id=category.id, page=posts.prev_num) }}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% for page_num in posts.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                            {% if page_num %}
+                                {% if posts.page == page_num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_num }}</span>
+                                </li>
+                                {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ url_for('posts.category', category_id=category.id, page=page_num) }}">{{ page_num }}</a>
+                                </li>
+                                {% endif %}
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if posts.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('posts.category', category_id=category.id, page=posts.next_num) }}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-journal-text display-1 text-muted mb-3"></i>
+                    <h4 class="text-muted">Chưa có bài viết nào</h4>
+                    <p class="text-muted">Hãy là người đầu tiên chia sẻ bài viết!</p>
+                </div>
+            {% endif %}
+        </div>
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3"><i class="bi bi-tags-fill text-success me-2"></i>Chủ đề</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for cat in categories %}
+                            <a href="{{ url_for('posts.category', category_id=cat.id) }}" class="badge bg-light text-dark text-decoration-none">{{ cat.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.post-item {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+.post-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.post-item .card-body {
+    padding: 1.5rem;
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.post-item').forEach(item => {
+        const postUrl = item.getAttribute('data-post-url');
+        if (postUrl) {
+            item.addEventListener('click', function() {
+                window.location.href = postUrl;
+            });
+        }
+    });
+});
+</script>
+{% endblock %} 

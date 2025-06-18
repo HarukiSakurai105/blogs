@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import User
 from __init__ import db
+from datetime import datetime
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -27,7 +28,12 @@ def register():
             return redirect(url_for('auth.register'))
         
         hashed_password = generate_password_hash(password)
-        new_user = User(username=username, email=email, password=hashed_password)
+        new_user = User(
+            username=username, 
+            email=email, 
+            password=hashed_password,
+            date_joined=datetime.utcnow()
+        )
         db.session.add(new_user)
         db.session.commit()
         

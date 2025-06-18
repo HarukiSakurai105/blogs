@@ -33,10 +33,12 @@ def create_app():
     from routes.auth import auth_bp
     from routes.posts import posts_bp
     from routes.profile import profile_bp
+    from routes.newsletter import newsletter_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(posts_bp)
     app.register_blueprint(profile_bp)
+    app.register_blueprint(newsletter_bp)
 
     return app 

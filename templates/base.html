@@ -35,53 +35,45 @@
         ]
     </script>
 
-    <!-- Top Bar -->
-    <!-- <div class="top-bar bg-dark text-white py-2">
+    <!-- Header -->
+    <header class="header bg-white border-bottom">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <small>Nguồn thông tin đáng tin cậy về đánh giá và tin tức đồng hồ của bạn</small>
+            <div class="d-flex justify-content-between align-items-center py-3">
+                <!-- Logo -->
+                <div class="d-flex align-items-center">
+                    <a href="{{ url_for('main.home') }}" class="navbar-brand fw-bold fs-4 text-dark">
+                        Blog Công Nghệ
+                    </a>
                 </div>
-                <div class="col-md-6 text-end">
-                    <a href="#" class="text-white me-3"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="text-white me-3"><i class="bi bi-twitter"></i></a>
-                    <a href="#" class="text-white me-3"><i class="bi bi-instagram"></i></a>
-                    <a href="#" class="text-white"><i class="bi bi-youtube"></i></a>
-                </div>
-            </div>
-        </div>
-    </div> -->
 
-    <!-- Main Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container d-flex align-items-center">
-            <a class="navbar-brand" href="{{ url_for('main.home') }}">Blog Công Nghệ</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse align-items-center" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
+                <!-- Navigation -->
+                <nav class="navbar navbar-expand-lg">
+                    <div class="navbar-nav me-auto">
                         <a class="nav-link" href="{{ url_for('main.home') }}">Trang chủ</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.about') }}">Giới thiệu</a>
-                    </li>
-                    {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('posts.create') }}">Tạo bài viết</a>
-                    </li>
-                    {% endif %}
-                </ul>
-                <form class="d-flex me-2" action="{{ url_for('main.search') }}" method="GET">
-                    <input class="form-control me-2" type="search" name="q" placeholder="Tìm kiếm" aria-label="Search">
-                    <button class="btn btn-outline-light" type="submit"><i class="bi bi-search"></i></button>
-                </form>
-                <ul class="navbar-nav">
-                    {% if current_user.is_authenticated %}
-                    <li class="nav-item dropdown">
+                        {% if current_user.is_authenticated %}
+                        <a class="nav-link" href="{{ url_for('posts.create') }}">Đăng bài viết</a>
+                        {% endif %}
+                    </div>
+                </nav>
+
+                <!-- Search Bar -->
+                <div class="d-flex align-items-center me-3">
+                    <form class="d-flex" action="{{ url_for('main.search') }}" method="GET">
+                        <input class="form-control me-2" type="search" name="q" placeholder="Tìm kiếm" style="width: 200px;">
+                        <button class="btn btn-outline-dark" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- User Menu -->
+                {% if current_user.is_authenticated %}
+                <div class="d-flex align-items-center">
+                    <!-- Notifications -->
+                    <div class="dropdown me-3">
                         <a class="nav-link position-relative" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-bell"></i>
+                            <i class="bi bi-bell fs-5"></i>
                             {% set unread_count = current_user.notifications|selectattr('is_read', 'equalto', false)|list|length %}
                             {% if unread_count > 0 %}
                             <span class="badge bg-danger position-absolute top-0 start-100 translate-middle">{{ unread_count }}</span>
@@ -107,11 +99,13 @@
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-center" href="{{ url_for('main.notifications') }}">Xem tất cả</a></li>
                         </ul>
-                    </li>
-                    <li class="nav-item dropdown">
+                    </div>
+
+                    <!-- User Profile -->
+                    <div class="dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="{{ url_for('static', filename='uploads/' + current_user.profile_image) }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;" alt="Profile">
-                            {{ current_user.username }}
+                            <span class="d-none d-md-inline">{{ current_user.username }}</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             <li><a class="dropdown-item" href="{{ url_for('profile.profile') }}"><i class="bi bi-person-circle me-2"></i>Trang cá nhân</a></li>
@@ -119,59 +113,115 @@
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
                         </ul>
-                    </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.login') }}">Đăng nhập</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.register') }}">Đăng ký</a>
-                    </li>
-                    {% endif %}
-                </ul>
+                    </div>
+                </div>
+                {% else %}
+                <div class="d-flex align-items-center">
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-dark me-2">Đăng nhập</a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-dark">Đăng ký</a>
+                </div>
+                {% endif %}
             </div>
         </div>
-    </nav>
+    </header>
 
     <!-- Main Content -->
-    <main class="container mt-4">
+    <main>
         {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white mt-5 py-4">
-        <div class="container">
+    <footer class="footer bg-white border-top mt-5">
+        <div class="container py-5">
             <div class="row">
-                <div class="col-md-4">
-                    <h5>Về chúng tôi</h5>
-                    <p>Blog chia sẻ kiến thức và trải nghiệm về công nghệ, cuộc sống và nhiều chủ đề thú vị khác.</p>
+                <!-- Logo và thông tin -->
+                <div class="col-lg-4 mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">Blog Công Nghệ</h5>
+                    </div>
+                    <p class="text-muted mb-3">Nơi chia sẻ kiến thức và đam mê công nghệ của thế hệ trẻ Việt Nam</p>
                 </div>
-                <div class="col-md-4">
-                    <h5>Liên kết nhanh</h5>
+
+                <!-- Liên kết nhanh -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3">Liên kết</h6>
                     <ul class="list-unstyled">
-                        <li><a href="{{ url_for('main.home') }}" class="text-white">Trang chủ</a></li>
-                        <li><a href="{{ url_for('main.about') }}" class="text-white">Giới thiệu</a></li>
-                        <li><a href="{{ url_for('main.search') }}" class="text-white">Tìm kiếm</a></li>
+                        <li class="mb-2"><a href="{{ url_for('main.home') }}" class="text-muted text-decoration-none">Trang chủ</a></li>
+                        <li class="mb-2"><a href="{{ url_for('main.about') }}" class="text-muted text-decoration-none">Giới thiệu</a></li>
+                        <li class="mb-2"><a href="{{ url_for('main.search') }}" class="text-muted text-decoration-none">Tìm kiếm</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Điều kiện sử dụng</a></li>
                     </ul>
                 </div>
-                <div class="col-md-4">
-                    <h5>Theo dõi chúng tôi</h5>
-                    <div class="social-links">
-                        <a href="#" class="text-white me-2"><i class="fab fa-facebook"></i></a>
-                        <a href="#" class="text-white me-2"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-white me-2"><i class="fab fa-instagram"></i></a>
+
+                <!-- Chủ đề -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3">Chủ đề</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Khoa học - Công nghệ</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Quan điểm - Tranh luận</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Góc nhìn thời sự</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Phát triển bản thân</a></li>
+                        <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Life style</a></li>
+                    </ul>
+                </div>
+
+                <!-- Liên hệ -->
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3">Liên hệ hợp tác</h6>
+                    <div class="mb-3">
+                        <p class="text-muted mb-1">
+                            <i class="bi bi-envelope me-2"></i>Email: contact@blogcongnghe.com
+                        </p>
+                        <p class="text-muted mb-1">
+                            <i class="bi bi-telephone me-2"></i>Điện thoại: (+84) 123 456 789
+                        </p>
+                    </div>
+                    
+                    <h6 class="fw-bold mb-2">Theo dõi chúng tôi</h6>
+                    <div class="d-flex gap-2">
+                        <a href="#" class="text-muted fs-5"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-muted fs-5"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-muted fs-5"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-muted fs-5"><i class="bi bi-youtube"></i></a>
                     </div>
                 </div>
             </div>
-            <hr>
-            <div class="text-center">
-                <p>&copy; 2024 Blog. All rights reserved.</p>
+
+            <!-- Divider -->
+            <hr class="my-4">
+
+            <!-- Bottom section -->
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="d-flex align-items-center">
+                        <h6 class="fw-bold mb-0 me-3">Blog Công Nghệ</h6>
+                        <span class="text-muted small">Nơi chia sẻ kiến thức và đam mê công nghệ</span>
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted mb-0">
+                        <small>&copy; Copyright 2024 - Blog Công Nghệ. All rights reserved.</small>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Address -->
+            <div class="row mt-3">
+                <div class="col-12">
+                    <p class="text-muted small mb-0">
+                        <i class="bi bi-geo-alt me-1"></i>
+                        Tầng 5, Tòa nhà ABC, 123 Đường XYZ, Quận 12, TP.HCM
+                    </p>
+                </div>
             </div>
         </div>
     </footer>
 
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Socket.IO -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var socket = io();
@@ -255,5 +305,98 @@
             }
         });
     </script>
+
+    <style>
+    .header {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .navbar-nav .nav-link {
+        color: #333 !important;
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        transition: color 0.2s ease;
+    }
+    
+    .navbar-nav .nav-link:hover {
+        color: #007bff !important;
+    }
+    
+    .navbar-brand {
+        color: #333 !important;
+        text-decoration: none;
+    }
+    
+    .navbar-brand:hover {
+        color: #007bff !important;
+    }
+
+    /* Đổi màu icon chuông và tên profile sang đen */
+    .header .bi-bell {
+        color: #222 !important;
+    }
+    .header .nav-link.dropdown-toggle span,
+    .header .nav-link.dropdown-toggle {
+        color: #222 !important;
+    }
+
+    /* Footer Styles */
+    .footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .footer h5, .footer h6 {
+        color: #333;
+    }
+
+    .footer .text-muted {
+        color: #6c757d !important;
+    }
+
+    .footer a {
+        transition: color 0.2s ease;
+    }
+
+    .footer a:hover {
+        color: #007bff !important;
+    }
+
+    .footer .btn-outline-dark {
+        border-color: #6c757d;
+        color: #6c757d;
+        transition: all 0.2s ease;
+    }
+
+    .footer .btn-outline-dark:hover {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+    }
+
+    .footer .social-links a {
+        transition: color 0.2s ease;
+    }
+
+    .footer .social-links a:hover {
+        color: #007bff !important;
+    }
+
+    .footer hr {
+        border-color: #e9ecef;
+        opacity: 1;
+    }
+
+    .footer .list-unstyled li {
+        margin-bottom: 0.5rem;
+    }
+
+    .footer .list-unstyled a {
+        font-size: 0.9rem;
+    }
+    </style>
 </body>
 </html> 

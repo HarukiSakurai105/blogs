@@ -3,10 +3,10 @@ from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import os
-from models import Post, Comment, Like, Notification, User
+from models import Post, Comment, Like, Notification, User, Category
 from __init__ import db, socketio
 from routes.main import create_notification
-from forms import CommentForm
+from forms import CommentForm, PostForm
 
 posts_bp = Blueprint('posts', __name__)
 
@@ -76,34 +76,28 @@ def delete_comment(post_id, comment_id):
 @posts_bp.route('/create', methods=['GET', 'POST'])
 @login_required
 def create():
-    if request.method == 'POST':
-        title = request.form.get('title')
-        content = request.form.get('content')
-        image = request.files.get('image')
-        
-        if not title or not content:
-            flash('Tiêu đề và nội dung không được để trống!', 'danger')
-            return redirect(url_for('posts.create'))
-        
-        post = Post(title=title, content=content, author=current_user)
-        
+    form = PostForm()
+    form.category.choices = [(c.id, c.name) for c in Category.query.order_by(Category.name).all()]
+    if form.validate_on_submit():
+        title = form.title.data
+        content = form.content.data
+        image = form.image.data
+        category_id = form.category.data
+        post = Post(title=title, content=content, author=current_user, category_id=category_id)
         if image and image.filename != '':
             if not allowed_file(image.filename):
                 flash('Chỉ cho phép các tệp hình ảnh!', 'danger')
                 return redirect(url_for('posts.create'))
-            
             filename = secure_filename(image.filename)
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_')
             filename = timestamp + filename
             image.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
             post.image_path = filename
-        
         db.session.add(post)
         db.session.commit()
         flash('Bài viết đã được tạo thành công!', 'success')
         return redirect(url_for('main.home'))
-    
-    return render_template('create.html')
+    return render_template('create.html', form=form)
 
 @posts_bp.route('/post/<int:post_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -113,10 +107,21 @@ def edit_post(post_id):
         flash('Bạn không thể chỉnh sửa bài viết này!', 'danger')
         return redirect(url_for('posts.post', post_id=post.id))
     
-    if request.method == 'POST':
-        post.title = request.form['title']
-        post.content = request.form['content']
-        image = request.files.get('image')
+    form = PostForm()
+    form.category.choices = [(c.id, c.name) for c in Category.query.order_by(Category.name).all()]
+    
+    if request.method == 'GET':
+        form.title.data = post.title
+        form.content.data = post.content
+        form.category.data = post.category_id if post.category_id else None
+    
+    if form.validate_on_submit():
+        post.title = form.title.data
+        post.content = form.content.data
+        post.category_id = form.category.data
+        image = form.image.data
+        post.is_edited = True
+        post.edited_at = datetime.now()
 
         if image and image.filename != '':
             if not allowed_file(image.filename):
@@ -140,7 +145,7 @@ def edit_post(post_id):
         flash('Bài viết của bạn đã được cập nhật!', 'success')
         return redirect(url_for('posts.post', post_id=post.id))
     
-    return render_template('edit.html', post=post)
+    return render_template('edit.html', post=post, form=form)
 
 @posts_bp.route('/post/<int:post_id>/delete', methods=['POST'])
 @login_required
@@ -228,3 +233,12 @@ def remove_post_image(post_id):
             db.session.rollback()
             return jsonify({'success': False, 'message': f'Lỗi khi xóa ảnh: {str(e)}'}), 500
     return jsonify({'success': False, 'message': 'Bài viết không có ảnh để xóa!'}), 404 
+
+@posts_bp.route('/category/<int:category_id>')
+def category(category_id):
+    from flask import request
+    page = request.args.get('page', 1, type=int)
+    category = Category.query.get_or_404(category_id)
+    posts = Post.query.filter_by(category_id=category.id).order_by(Post.date_posted.desc()).paginate(page=page, per_page=10)
+    categories = Category.query.order_by(Category.name).all()
+    return render_template('category_posts.html', category=category, posts=posts, categories=categories) 
