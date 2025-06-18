@@ -25,6 +25,10 @@
                         <img src="{{ url_for('static', filename='uploads/' + post.image_path) }}" 
                              alt="{{ post.title }}" 
                              class="img-fluid rounded mb-4 post-image">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='uploads/default_post_image.jpg') }}" 
+                             alt="Default Post Image" 
+                             class="img-fluid rounded mb-4 post-image">
                     {% endif %}
 
                     <div class="post-content mb-4">

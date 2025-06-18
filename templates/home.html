@@ -14,7 +14,7 @@
                         {% if featured_post.image_path %}
                             <img src="{{ url_for('static', filename='uploads/' + featured_post.image_path) }}" alt="{{ featured_post.title }}" class="img-fluid featured-image">
                         {% else %}
-                            <img src="{{ url_for('static', filename='uploads/default_profile.jpg') }}" alt="Default Post Image" class="img-fluid featured-image">
+                            <img src="{{ url_for('static', filename='uploads/default_post_image.jpg') }}" alt="Default Post Image" class="img-fluid featured-image">
                         {% endif %}
                     </div>
                     <div class="col-md-6 p-4 d-flex flex-column">
@@ -61,7 +61,7 @@
                                 {% if post.image_path %}
                                     <img src="{{ url_for('static', filename='uploads/' + post.image_path) }}" class="card-img-left" alt="{{ post.title }}">
                                 {% else %}
-                                    <img src="{{ url_for('static', filename='uploads/default_profile.jpg') }}" class="card-img-left" alt="Default Post Image">
+                                    <img src="{{ url_for('static', filename='uploads/default_post_image.jpg') }}" class="card-img-left" alt="Default Post Image">
                                 {% endif %}
                                 <div class="card-body d-flex flex-column justify-content-between">
                                     <div>

@@ -50,6 +50,11 @@ class Notification(db.Model):
     is_read = db.Column(db.Boolean, default=False)
     link = db.Column(db.String(200))
 
+class NewsletterSubscriber(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    date_subscribed = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id)) 
