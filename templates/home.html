@@ -9,7 +9,7 @@
         {% if posts.items %}
             {% set featured_post = posts.items[0] %}
             <div class="col-12 mb-5">
-                <div class="card flex-md-row mb-4 shadow-sm h-md-250 position-relative" id="featuredPostCard">
+                <div class="card flex-md-row mb-4 shadow-sm h-md-250 position-relative" id="featuredPostCard" data-post-url="{{ url_for('posts.post', post_id=featured_post.id) }}">
                     <div class="col-md-6 p-0 featured-image-container">
                         {% if featured_post.image_path %}
                             <img src="{{ url_for('static', filename='uploads/' + featured_post.image_path) }}" alt="{{ featured_post.title }}" class="img-fluid featured-image">
@@ -147,11 +147,14 @@
     document.addEventListener('DOMContentLoaded', function() {
         const featuredPostCard = document.getElementById('featuredPostCard');
         if (featuredPostCard) {
-            featuredPostCard.style.cursor = 'pointer'; // Add pointer cursor to indicate clickability
-            featuredPostCard.addEventListener('click', function() {
-                console.log("Featured post card clicked!"); // Debugging line
-                window.location.href = "{{ url_for('posts.post', post_id=featured_post.id) }}";
-            });
+            const postUrl = featuredPostCard.getAttribute('data-post-url');
+            if (postUrl) {
+                featuredPostCard.style.cursor = 'pointer'; // Add pointer cursor to indicate clickability
+                featuredPostCard.addEventListener('click', function() {
+                    console.log("Featured post card clicked!"); // Debugging line
+                    window.location.href = postUrl;
+                });
+            }
         }
     });
 </script>
