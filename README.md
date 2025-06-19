@@ -1,55 +1,74 @@
+# Hướng dẫn cài đặt và chạy project
 
-11. Install the required packages:
+## 1. Cài đặt Python
+- Tải và cài Python 3.11 hoặc mới hơn từ https://www.python.org/downloads/
+
+## 2. (Khuyến nghị) Tạo môi trường ảo
+Mở terminal/cmd tại thư mục project, chạy:
+```bash
+python -m venv venv
+```
+Kích hoạt môi trường ảo:
+- Windows:
+  ```
+  venv\Scripts\activate
+  ```
+- Mac/Linux:
+  ```
+  source venv/bin/activate
+  ```
+
+## 3. Cài đặt các thư viện cần thiết
 ```bash
 pip install -r requirements.txt
-pip install Flask-Migrate
-pip install flask-socketio
+pip install Flask-Migrate flask-socketio
 ```
-2. Run the application:
+
+## 4. Thêm các chủ đề mặc định
+```bash
+python create_default_categories.py
+```
+
+## 5. Chạy ứng dụng
 ```bash
 python app.py
 ```
 
-3. Open your web browser and navigate to:
-````
+## 6. Mở trình duyệt và truy cập
+```
 http://localhost:5000
 ```
 
-## Usage
+---
 
-1. Register a new account
-2. Log in with your credentials
-3. Create new blog posts
-4. Edit or delete your posts
-5. View other users' posts
+**Lưu ý:**  
+- Nếu gặp lỗi cơ sở dữ liệu (ví dụ: thiếu cột), hãy xóa file `instance/blog.db` rồi chạy lại bước 4 và 5.
+- Nếu chưa có Flask CLI, có thể chạy:
+  ```bash
+  set FLASK_APP=app.py  # Windows
+  export FLASK_APP=app.py  # Mac/Linux
+  flask db upgrade
+  ```
 
-## Project Structure
+---
+
+## Hướng dẫn sử dụng
+
+1. Đăng ký tài khoản mới
+2. Đăng nhập bằng tài khoản vừa tạo
+3. Tạo bài viết mới
+4. Sửa hoặc xóa bài viết của bạn
+5. Xem bài viết của người dùng khác
+
+## Cấu trúc thư mục project
 
 ```
-family-blog/
-├── app.py              # Main application file
-├── requirements.txt    # Python dependencies
-├── static/            # Static files (CSS, images)
-│   └── style.css      # Custom styles
-├── templates/         # HTML templates
-│   ├── base.html      # Base template
-│   ├── home.html      # Home page
-│   ├── about.html     # About page
-│   ├── login.html     # Login page
-│   ├── register.html  # Registration page
-│   ├── create.html    # Create post page
-│   └── post.html      # Individual post page
-└── instance/          # Instance-specific files
-    └── blog.db        # SQLite database
+blogs/
+├── app.py              # File chạy chính của ứng dụng
+├── requirements.txt    # Danh sách các thư viện Python cần thiết
+├── static/             # Thư mục chứa file tĩnh (CSS, hình ảnh)
+├── templates/          # Thư mục chứa các file giao diện HTML
+├── instance/
+│   └── blog.db         # File cơ sở dữ liệu SQLite
+└── ...
 ```
-
-## Contributing
-
-1. Fork the repository
-2. Create a new branch
-3. Make your changes
-4. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details. 
